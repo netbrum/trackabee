@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import UTC, datetime
 from typing import Literal
@@ -23,7 +24,7 @@ tree = app_commands.CommandTree(client)
 @client.event
 async def on_ready():
     await tree.sync()
-    print(f"Logged in as {client.user}")
+    logging.info(f"Logged in as {client.user}")
 
 
 @tree.command(name="add", description="Add tracker")
@@ -42,6 +43,8 @@ async def add(
     end: str | None,
     goal: int | None,
 ) -> None:
+    logging.info(f"{interaction.user.name}::add")
+
     async with Session() as db:
         db.add(
             Tracker(
@@ -78,11 +81,13 @@ async def edit(
     end: str | None,
     goal: int | None,
 ) -> None:
+    logging.info(f"{interaction.user.name}::{tracker}::edit")
+
     async with Session() as db:
         t = await get_tracker(db, tracker, interaction.user.id)
 
         if not t:
-            return await not_found(interaction)
+            return await not_found(interaction, tracker)
 
         t.name = name
         t.unit = unit
@@ -97,6 +102,8 @@ async def edit(
 
 @tree.command(name="remove", description="Remove tracker")
 async def remove(interaction: discord.Interaction, tracker: str) -> None:
+    logging.info(f"{interaction.user.name}::{tracker}::remove")
+
     await interaction.response.send_message(
         "Are you sure?", ephemeral=True, view=RemoveView(interaction.user.id, tracker)
     )
@@ -104,11 +111,13 @@ async def remove(interaction: discord.Interaction, tracker: str) -> None:
 
 @tree.command(name="show", description="Show tracker chart")
 async def show(interaction: discord.Interaction, tracker: str) -> None:
+    logging.info(f"{interaction.user.name}::{tracker}::show")
+
     async with Session() as db:
         t = await get_tracker(db, tracker, interaction.user.id)
 
     if not t:
-        return await not_found(interaction)
+        return await not_found(interaction, tracker)
 
     await send_chart(interaction, t)
 
@@ -116,11 +125,13 @@ async def show(interaction: discord.Interaction, tracker: str) -> None:
 @tree.command(name="log", description="Log progress")
 @app_commands.describe(value="Value")
 async def log(interaction: discord.Interaction, tracker: str, value: int) -> None:
+    logging.info(f"{interaction.user.name}::{tracker}::log")
+
     async with Session() as db:
         t = await get_tracker(db, tracker, interaction.user.id)
 
         if not t:
-            return await not_found(interaction)
+            return await not_found(interaction, tracker)
 
         timestamp = interaction.created_at.replace(
             hour=0, minute=0, second=0, microsecond=0
@@ -162,11 +173,13 @@ async def log(interaction: discord.Interaction, tracker: str, value: int) -> Non
 
 @tree.command(name="pop", description="Remove last point")
 async def pop(interaction: discord.Interaction, tracker: str) -> None:
+    logging.info(f"{interaction.user.name}::{tracker}::pop")
+
     async with Session() as db:
         t = await get_tracker(db, tracker, interaction.user.id)
 
         if not t:
-            return await not_found(interaction)
+            return await not_found(interaction, tracker)
 
         point = await db.scalar(
             select(TrackerPoint).order_by(TrackerPoint.timestamp.desc()).limit(1)
@@ -230,4 +243,4 @@ async def active_trackers_autocomplete(
 
 
 if __name__ == "__main__":
-    client.run(Settings().TOKEN)
+    client.run(Settings().TOKEN, root_logger=True)

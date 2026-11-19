@@ -37,7 +37,7 @@ class OverwriteView(discord.ui.View):
             tracker = await get_tracker(db, self.tracker_id, self.user_id)
 
             if not tracker:
-                return await not_found(interaction)
+                return await not_found(interaction, self.tracker_id)
 
         await interaction.response.edit_message(content="Success", view=None)
         await followup_chart(interaction, tracker)
