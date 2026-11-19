@@ -19,3 +19,15 @@ async def send_chart(interaction: discord.Interaction, tracker: Tracker):
         )
     except ChartNoPointsError:
         await interaction.response.send_message("No data in tracker", ephemeral=True)
+
+
+async def followup_chart(interaction: discord.Interaction, tracker: Tracker):
+    try:
+        image = generate_chart(tracker)
+
+        await interaction.followup.send(
+            content=f"{interaction.user.mention} Log overwritten, here's the updated chart",
+            file=discord.File(image, filename="chart.png"),
+        )
+    except ChartNoPointsError:
+        await interaction.followup.send("No data in tracker", ephemeral=True)

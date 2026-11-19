@@ -13,6 +13,7 @@ class ChartNoPointsError(Exception):
 
 def generate_chart(tracker: Tracker) -> BytesIO:
     points = tracker.points
+
     if not points:
         raise ChartNoPointsError()
 
@@ -32,6 +33,7 @@ def generate_chart(tracker: Tracker) -> BytesIO:
         template="plotly_dark",
         width=1200,
         height=600,
+        color_discrete_sequence=["green"],
     )
 
     if tracker.goal and tracker.ends_at:
@@ -51,8 +53,8 @@ def generate_chart(tracker: Tracker) -> BytesIO:
 
     fig.update_xaxes(
         range=[first_timestamp, tracker.ends_at] if tracker.ends_at else None,
-        tickformat="%b %d",
         tickmode="linear",
+        tickformat="%b %d",
         tickangle=-45,
         rangemode="tozero",
     )
