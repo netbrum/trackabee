@@ -12,7 +12,7 @@ class ChartNoPointsError(Exception):
 
 
 def generate_chart(tracker: Tracker) -> BytesIO:
-    points = tracker.points
+    points = sorted(tracker.points, key=lambda p: p.timestamp)
 
     if not points:
         raise ChartNoPointsError()

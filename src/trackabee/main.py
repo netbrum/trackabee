@@ -12,13 +12,16 @@ from trackabee.db import Session, get_tracker
 from trackabee.models import Tracker, TrackerPoint
 from trackabee.responses import not_found, send_chart
 from trackabee.settings import Settings
-from trackabee.views import OverwriteView, RemoveView
+from trackabee.views import RemoveView
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
+
+logging.getLogger("kaleido").setLevel(logging.ERROR)
+logging.getLogger("choreographer").setLevel(logging.ERROR)
 
 
 @client.event
@@ -145,9 +148,8 @@ async def log(interaction: discord.Interaction, tracker: str, value: int) -> Non
 
         if existing:
             await interaction.response.send_message(
-                "You've already logged todays progress, do you want to overwrite?",
+                "You've already logged todays progress, use /pop to remove",
                 ephemeral=True,
-                view=OverwriteView(interaction.user.id, tracker, existing.id, value),
             )
             return
 

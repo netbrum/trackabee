@@ -15,28 +15,20 @@ async def not_found(
     )
 
 
-async def send_chart(interaction: discord.Interaction, tracker: Tracker):
-    try:
-        image = generate_chart(tracker)
+async def send_chart(
+    interaction: discord.Interaction, tracker: Tracker, content: str = ""
+):
+    await interaction.response.defer()
 
-        logging.info(f"{interaction.user.name}::{tracker.id}::chart")
-
-        await interaction.response.send_message(
-            file=discord.File(image, filename="chart.png")
-        )
-    except ChartNoPointsError:
-        await interaction.response.send_message("No data in tracker", ephemeral=True)
-
-
-async def followup_chart(interaction: discord.Interaction, tracker: Tracker):
     try:
         image = generate_chart(tracker)
 
         logging.info(f"{interaction.user.name}::{tracker.id}::chart")
 
         await interaction.followup.send(
-            content=f"{interaction.user.mention} Log overwritten, here's the updated chart",
+            content=content,
             file=discord.File(image, filename="chart.png"),
+            ephemeral=False,
         )
     except ChartNoPointsError:
         await interaction.followup.send("No data in tracker", ephemeral=True)
