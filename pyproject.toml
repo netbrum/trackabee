@@ -2,7 +2,6 @@
 name = "trackabee"
 version = "0.1.0"
 description = "Progress tracker bot"
-readme = "README.md"
 authors = [{ name = "netbrum", email = "netbrum@tutanota.com" }]
 requires-python = ">=3.14"
 dependencies = [
